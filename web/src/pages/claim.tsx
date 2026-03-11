@@ -1,42 +1,53 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useWallet, useConnection } from '@solana/wallet-adapter-react'
-import { Transaction, SystemProgram, LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
-import { Clock, CheckCircle, XCircle } from 'lucide-react'
+import { Clock, CheckCircle, XCircle, Twitter } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export default function Claim() {
   const { rainId } = useParams()
   const navigate = useNavigate()
-  const { publicKey, sendTransaction } = useWallet()
+  const { publicKey, connected, connect } = useWallet()
   const { connection } = useConnection()
   
   const [claim, setClaim] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [claiming, setClaiming] = useState(false)
   const [error, setError] = useState('')
+  const [twitterLinked, setTwitterLinked] = useState(false)
 
   useEffect(() => {
-    if (rainId) {
+    if (rainId && connected) {
       fetchClaim()
     } else {
       setLoading(false)
     }
-  }, [rainId, publicKey])
+  }, [rainId, connected, publicKey])
 
   async function fetchClaim() {
-    if (!publicKey) return
+    if (!publicKey || !rainId) return
     
-    const wallet = publicKey.toString()
-    
-    // Fetch claim by rain event ID
-    const { data } = await supabase
-      .from('claims')
-      .select('*, rain_event:rain_events(*)')
-      .eq('rain_event_id', rainId)
+    // Check if user has linked Twitter
+    const { data: user } = await supabase
+      .from('users')
+      .select('*')
+      .eq('solana_address', publicKey.toString())
       .single()
     
-    setClaim(data)
+    if (user) {
+      setTwitterLinked(true)
+      
+      // Fetch claim
+      const { data } = await supabase
+        .from('claims')
+        .select('*, rain_event:rain_events(*)')
+        .eq('rain_event_id', rainId)
+        .eq('receiver_twitter_id', user.twitter_id)
+        .single()
+      
+      setClaim(data)
+    }
+    
     setLoading(false)
   }
 
@@ -47,20 +58,31 @@ export default function Claim() {
     setError('')
 
     try {
-      // In production, this would call the bot's API to execute the transfer
-      // For now, we'll just mark it as claimed in the database
+      // Call API to execute claim
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          claimId: claim.id,
+          receiverAddress: publicKey.toString(),
+        }),
+      })
       
-      const { error } = await supabase
+      if (!response.ok) throw new Error('Claim failed')
+      
+      const result = await response.json()
+      
+      // Update claim status
+      await supabase
         .from('claims')
         .update({ 
           status: 'claimed',
-          claimed_at: new Date().toISOString()
+          claimed_at: new Date().toISOString(),
+          tx_hash: result.txHash,
         })
         .eq('id', claim.id)
       
-      if (error) throw error
-      
-      // Refresh claim data
+      // Refresh
       await fetchClaim()
     } catch (err: any) {
       setError(err.message)
@@ -77,29 +99,45 @@ export default function Claim() {
     )
   }
 
-  if (!rainId) {
+  if (!connected) {
     return (
       <div className="max-w-md mx-auto text-center py-16">
-        <CloudRain className="w-16 h-16 text-primary mx-auto mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Enter Claim Code</h1>
-        <p className="text-gray-400 mb-6">Enter the rain event ID from your DM</p>
-        <input
-          type="text"
-          placeholder="Rain Event ID"
-          className="w-full bg-surface border border-gray-700 rounded-lg px-4 py-3 mb-4"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              navigate(`/claim/${(e.target as HTMLInputElement).value}`)
-            }
-          }}
-        />
+        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-3xl">🌧</span>
+        </div>
+        <h1 className="text-2xl font-bold mb-2">Connect Wallet</h1>
+        <p className="text-gray-400 mb-6">Connect your Solana wallet to claim your tokens</p>
+        <button 
+          onClick={() => connect()}
+          className="bg-primary text-black px-6 py-3 rounded-lg font-semibold"
+        >
+          Connect Wallet
+        </button>
+      </div>
+    )
+  }
+
+  if (!twitterLinked) {
+    return (
+      <div className="max-w-md mx-auto text-center py-16">
+        <Twitter className="w-16 h-16 text-primary mx-auto mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Verify Twitter</h1>
+        <p className="text-gray-400 mb-6">
+          Link your Twitter account to verify eligibility and claim tokens
+        </p>
+        <Link 
+          to="/dashboard"
+          className="bg-primary text-black px-6 py-3 rounded-lg font-semibold"
+        >
+          Go to Dashboard
+        </Link>
       </div>
     )
   }
 
   if (!claim) {
     return (
-      <div className="text-center py-16">
+      <div className="max-w-md mx-auto text-center py-16">
         <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <h1 className="text-2xl font-bold mb-2">Claim Not Found</h1>
         <p className="text-gray-400">This rain event doesn't exist or you're not eligible.</p>
@@ -126,6 +164,16 @@ export default function Claim() {
             <p className="text-gray-400">
               You claimed this on {new Date(claim.claimed_at).toLocaleDateString()}
             </p>
+            {claim.tx_hash && (
+              <a 
+                href={`https://solscan.io/tx/${claim.tx_hash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline text-sm mt-4 inline-block"
+              >
+                View Transaction →
+              </a>
+            )}
           </>
         ) : claim.status === 'expired' ? (
           <>
@@ -138,20 +186,17 @@ export default function Claim() {
             <Clock className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Ready to Claim!</h2>
             <p className="text-gray-400 mb-6">
-              Connect your wallet and claim your tokens. Gas fees covered by sender.
+              You have {claim.amount} ${claim.token} waiting. 
+              Click below to claim to your wallet.
             </p>
             
-            {!publicKey ? (
-              <p className="text-yellow-500">Connect your wallet to claim</p>
-            ) : (
-              <button
-                onClick={handleClaim}
-                disabled={claiming}
-                className="w-full bg-primary text-black py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
-              >
-                {claiming ? 'Claiming...' : 'Claim Now'}
-              </button>
-            )}
+            <button
+              onClick={handleClaim}
+              disabled={claiming}
+              className="w-full bg-primary text-black py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+            >
+              {claiming ? 'Claiming...' : 'Claim Now'}
+            </button>
           </>
         )}
 
@@ -164,4 +209,4 @@ export default function Claim() {
 }
 
 // Missing import fix
-import { CloudRain } from 'lucide-react'
+import { Link } from 'react-router-dom'
