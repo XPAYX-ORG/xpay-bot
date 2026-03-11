@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DASHBOARD :: $XPAY</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌧</text></svg>">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #050505;
+      --bg-secondary: #0a0a0a;
+      --bg-tertiary: #111111;
+      --terminal-green: #00ff41;
+      --terminal-cyan: #00ffff;
+      --terminal-yellow: #ffff00;
+      --terminal-red: #ff0040;
+      --text-primary: #e0e0e0;
+      --text-secondary: #888888;
+      --border: #222222;
+    }
+    
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    header {
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--terminal-green);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    
+    .logo::before {
+      content: '>';
+      color: var(--terminal-cyan);
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+    
+    nav {
+      display: flex;
+      gap: 30px;
+    }
+    
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.3s;
+    }
+    
+    nav a:hover { color: var(--terminal-green); }
+    nav a.active { color: var(--terminal-cyan); }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: var(--terminal-green);
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 15px;
+    }
+    
+    .terminal {
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      margin-bottom: 30px;
+    }
+    
+    .terminal-header {
+      background: var(--bg-tertiary);
+      padding: 10px 15px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .terminal-dot.red { background: var(--terminal-red); }
+    .terminal-dot.yellow { background: var(--terminal-yellow); }
+    .terminal-dot.green { background: var(--terminal-green); }
+    
+    .terminal-body {
+      padding: 25px;
+    }
+    
+    .user-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+    
+    .info-value {
+      color: var(--terminal-cyan);
+      font-size: 13px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: 1px solid var(--terminal-green);
+      background: transparent;
+      color: var(--terminal-green);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: var(--terminal-green);
+      color: var(--bg-primary);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+    }
+    
+    .btn-secondary {
+      border-color: var(--terminal-cyan);
+      color: var(--terminal-cyan);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--terminal-cyan);
+      color: var(--bg-primary);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    }
+    
+    .section-title {
+      font-size: 14px;
+      color: var(--terminal-cyan);
+      margin-bottom: 15px;
+    }
+    
+    .claim-list, .tx-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .claim-item, .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: var(--bg-tertiary);
+      border-left: 3px solid var(--terminal-green);
+    }
+    
+    .claim-item.pending {
+      border-left-color: var(--terminal-yellow);
+    }
+    
+    .claim-item.claimed {
+      border-left-color: var(--terminal-cyan);
+    }
+    
+    .claim-info, .tx-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .claim-amount, .tx-amount {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--terminal-green);
+    }
+    
+    .claim-from, .tx-time {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .claim-btn {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+    
+    .status-badge {
+      padding: 4px 10px;
+      font-size: 11px;
+      border: 1px solid;
+    }
+    
+    .status-pending {
+      color: var(--terminal-yellow);
+      border-color: var(--terminal-yellow);
+    }
+    
+    .status-claimed {
+      color: var(--terminal-cyan);
+      border-color: var(--terminal-cyan);
+    }
+    
+    .connect-section {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .connect-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+    
+    .wallet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .wallet-option {
+      padding: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-tertiary);
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    
+    .wallet-option:hover {
+      border-color: var(--terminal-green);
+      box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
+    }
+    
+    .wallet-icon {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+    
+    .tab:hover {
+      color: var(--terminal-green);
+    }
+    
+    .tab.active {
+      color: var(--terminal-green);
+      border-bottom: 2px solid var(--terminal-green);
+    }
+    
+    @media (max-width: 768px) {
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">$XPAY_BOT</a>
+      <nav>
+        <a href="/" class="active">[HOME]</a>
+        <a href="/dashboard" class="active">[DASHBOARD]</a>
+        <a href="/claim">[CLAIM]</a>
+        <a href="/leaderboard">[LEADERBOARD]</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>DASHBOARD :: USER_PROFILE</h1>
+
+    <!-- Connect Wallet Section (shown if not connected) -->
+    <div class="terminal" id="connect-section">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span>WALLET_CONNECTION_REQUIRED</span>
+      </div>
+      <div class="terminal-body">
+        <div class="connect-section">
+          <div class="connect-icon">👛</div>
+          <h2 style="margin-bottom: 10px;">CONNECT_WALLET</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 30px;">
+            Connect your Solana wallet to view claims, transaction history, and manage your account.
+          </p>
+          <div class="wallet-grid">
+            <div class="wallet-option" onclick="connectPhantom()">
+              <div class="wallet-icon">👻</div>
+              <div>Phantom</div>
+            </div>
+            <div class="wallet-option" onclick="connectBackpack()">
+              <div class="wallet-icon">🎒</div>
+              <div>Backpack</div>
+            </div>
+            <div class="wallet-option" onclick="connectSolflare()">
+              <div class="wallet-icon">☀️</div>
+              <div>Solflare</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Profile (shown if connected) -->
+    <div class="terminal" id="profile-section" style="display: none;">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span>USER_PROFILE.json</span>
+      </div>
+      <div class="terminal-body">
+        <div class="user-info">
+          <div class="info-row">
+            <span class="info-label">TWITTER_HANDLE</span>
+            <span class="info-value" id="twitter-handle">@not_linked</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">WALLET_ADDRESS</span>
+            <span class="info-value" id="wallet-address">Not connected</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">TOTAL_CLAIMED</span>
+            <span class="info-value" id="total-claimed">0 XPAY</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">RAINS_SENT</span>
+            <span class="info-value" id="rains-sent">0</span>
+          </div>
+        </div>
+        <div style="margin-top: 20px;">
+          <button class="btn" onclick="linkTwitter()" id="link-twitter-btn">
+            [LINK_TWITTER]
+          </button>
+          <button class="btn btn-secondary" onclick="disconnect()" style="margin-left: 10px;">
+            [DISCONNECT]
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Claims -->
+    <div class="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span>PENDING_CLAIMS.queue</span>
+      </div>
+      <div class="terminal-body">
+        <div class="section-title">>> PENDING_CLAIMS</div>
+        <div class="claim-list" id="pending-claims">
+          <!-- Populated by JS -->
+          <div class="empty-state">No pending claims. Watch for rains on Twitter!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span>TRANSACTION_HISTORY.log</span>
+      </div>
+      <div class="terminal-body">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('received')">RECEIVED</div>
+          <div class="tab" onclick="switchTab('sent')">SENT</div>
+        </div>
+        <div class="tx-list" id="tx-list">
+          <!-- Populated by JS -->
+          <div class="empty-state">No transactions yet.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let wallet = null;
+    let walletName = '';
+    
+    // Check if wallet already connected
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        if (window.phantom?.solana?.isConnected) {
+          connectPhantom();
+        } else if (window.backpack?.solana?.isConnected) {
+          connectBackpack();
+        } else if (window.solflare?.isConnected) {
+          connectSolflare();
+        }
+      }, 500);
+    });
+    
+    async function connectPhantom() {
+      if (!window.phantom?.solana) {
+        alert('Install Phantom from phantom.app');
+        window.open('https://phantom.app', '_blank');
+        return;
+      }
+      try {
+        await window.phantom.solana.connect();
+        wallet = window.phantom.solana;
+        walletName = 'Phantom';
+        showDashboard();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    
+    async function connectBackpack() {
+      if (!window.backpack?.solana) {
+        alert('Install Backpack from backpack.app');
+        window.open('https://backpack.app', '_blank');
+        return;
+      }
+      try {
+        await window.backpack.solana.connect();
+        wallet = window.backpack.solana;
+        walletName = 'Backpack';
+        showDashboard();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    
+    async function connectSolflare() {
+      if (!window.solflare) {
+        alert('Install Solflare from solflare.com');
+        window.open('https://solflare.com', '_blank');
+        return;
+      }
+      try {
+        await window.solflare.connect();
+        wallet = window.solflare;
+        walletName = 'Solflare';
+        showDashboard();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    
+    function showDashboard() {
+      document.getElementById('connect-section').style.display = 'none';
+      document.getElementById('profile-section').style.display = 'block';
+      
+      const address = wallet.publicKey.toString();
+      document.getElementById('wallet-address').textContent = 
+        address.slice(0, 8) + '...' + address.slice(-8);
+      
+      // Simulate fetching data
+      loadClaims();
+      loadTransactions();
+    }
+    
+    function disconnect() {
+      wallet = null;
+      document.getElementById('connect-section').style.display = 'block';
+      document.getElementById('profile-section').style.display = 'none';
+    }
+    
+    function linkTwitter() {
+      // Twitter OAuth flow
+      const clientId = 'YOUR_TWITTER_CLIENT_ID';
+      const redirectUri = encodeURIComponent(window.location.origin + '/auth/callback');
+      const scope = encodeURIComponent('tweet.read users.read offline.access');
+      
+      window.location.href = `https://twitter.com/i/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&code_challenge=challenge&code_challenge_method=plain&state=${wallet.publicKey.toString()}`;
+    }
+    
+    function loadClaims() {
+      // Simulated claims - replace with Supabase fetch
+      const claims = [
+        { id: 1, amount: 100, token: 'XPAY', from: '@cryptowhale', status: 'pending' },
+        { id: 2, amount: 50, token: 'SOL', from: '@solanamax', status: 'pending' },
+      ];
+      
+      const container = document.getElementById('pending-claims');
+      
+      if (claims.length > 0) {
+        container.innerHTML = claims.map(claim => `
+          <div class="claim-item ${claim.status}">
+            <div class="claim-info">
+              <div class="claim-amount">${claim.amount} $${claim.token}</div>
+              <div class="claim-from">from ${claim.from}</div>
+            </div>
+            <a href="/claim/${claim.id}" class="btn claim-btn">[CLAIM]</a>
+          </div>
+        `).join('');
+      }
+    }
+    
+    function loadTransactions() {
+      // Simulated transactions
+      const txs = [
+        { id: 1, type: 'received', amount: 100, token: 'XPAY', time: '2h ago', hash: '0x123...' },
+        { id: 2, type: 'received', amount: 50, token: 'SOL', time: '1d ago', hash: '0x456...' },
+      ];
+      
+      const container = document.getElementById('tx-list');
+      
+      if (txs.length > 0) {
+        container.innerHTML = txs.map(tx => `
+          <div class="tx-item">
+            <div class="tx-info">
+              <div class="tx-amount">+${tx.amount} $${tx.token}</div>
+              <div class="tx-time">${tx.time} • ${tx.hash}</div>
+            </div>
+            <span class="status-badge status-claimed">CLAIMED</span>
+          </div>
+        `).join('');
+      }
+    }
+    
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      // Reload transactions based on tab
+    }
+  </script>
+</body>
+</html>

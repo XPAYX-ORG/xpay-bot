@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEADERBOARD :: $XPAY</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-primary: #050505;
+      --bg-secondary: #0a0a0a;
+      --bg-tertiary: #111111;
+      --terminal-green: #00ff41;
+      --terminal-cyan: #00ffff;
+      --terminal-yellow: #ffff00;
+      --terminal-red: #ff0040;
+      --text-primary: #e0e0e0;
+      --text-secondary: #888888;
+      --border: #222222;
+    }
+    
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    header {
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-secondary);
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--terminal-green);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    
+    .logo::before {
+      content: '>';
+      color: var(--terminal-cyan);
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+    
+    nav {
+      display: flex;
+      gap: 30px;
+    }
+    
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.3s;
+    }
+    
+    nav a:hover { color: var(--terminal-green); }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: var(--terminal-green);
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 15px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .stat-card {
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      padding: 25px;
+      position: relative;
+      text-align: center;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--terminal-green);
+    }
+    
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--terminal-green);
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 5px;
+    }
+    
+    .terminal {
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      margin-bottom: 30px;
+    }
+    
+    .terminal-header {
+      background: var(--bg-tertiary);
+      padding: 10px 15px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .terminal-dot.red { background: var(--terminal-red); }
+    .terminal-dot.yellow { background: var(--terminal-yellow); }
+    .terminal-dot.green { background: var(--terminal-green); }
+    
+    .terminal-body {
+      padding: 0;
+    }
+    
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .leaderboard-table th {
+      text-align: left;
+      padding: 15px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+    }
+    
+    .leaderboard-table td {
+      padding: 15px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    
+    .leaderboard-table tr:hover {
+      background: var(--bg-tertiary);
+    }
+    
+    .rank {
+      font-weight: 700;
+      color: var(--terminal-cyan);
+    }
+    
+    .rank.gold { color: #ffd700; }
+    .rank.silver { color: #c0c0c0; }
+    .rank.bronze { color: #cd7f32; }
+    
+    .user-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--terminal-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    
+    .amount-cell {
+      color: var(--terminal-green);
+      font-weight: 600;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 5px;
+      padding: 0 15px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+    
+    .tab:hover {
+      color: var(--terminal-green);
+    }
+    
+    .tab.active {
+      color: var(--terminal-green);
+      border-bottom: 2px solid var(--terminal-green);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">$XPAY_BOT</a>
+      <nav>
+        <a href="/">[HOME]</a>
+        <a href="/dashboard">[DASHBOARD]</a>
+        <a href="/claim">[CLAIM]</a>
+        <a href="/leaderboard" style="color: var(--terminal-cyan);">[LEADERBOARD]</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>LEADERBOARD :: TOP_PERFORMERS</h1>
+
+    <!-- Global Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="total-rains">1,337</div>
+        <div class="stat-label">TOTAL_RAINS</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="total-volume">6.9M</div>
+        <div class="stat-label">TOTAL_VOLUME_USD</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="total-users">420</div>
+        <div class="stat-label">ACTIVE_USERS</div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="terminal">
+      <div class="terminal-header">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span>TOP_RAINMAKERS.dat</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('rains')">BY_RAINS_SENT</div>
+        <div class="tab" onclick="switchTab('volume')">BY_VOLUME</div>
+        <div class="tab" onclick="switchTab('claims')">BY_CLAIMS</div>
+      </div>
+      <div class="terminal-body">
+        <table class="leaderboard-table" id="leaderboard">
+          <thead>
+            <tr>
+              <th>RANK</th>
+              <th>USER</th>
+              <th>RAINS_SENT</th>
+              <th>TOTAL_VOLUME</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const leaderboardData = {
+      rains: [
+        { rank: 1, handle: 'cryptowhale', avatar: '🐋', rains: 156, volume: 1250000 },
+        { rank: 2, handle: 'solanamax', avatar: '☀️', rains: 134, volume: 890000 },
+        { rank: 3, handle: 'degentrader', avatar: '📈', rains: 98, volume: 654000 },
+        { rank: 4, handle: 'nftcollector', avatar: '🎨', rains: 87, volume: 432000 },
+        { rank: 5, handle: 'memelord', avatar: '🐸', rains: 76, volume: 321000 },
+        { rank: 6, handle: 'blockchainbarbie', avatar: '💅', rains: 65, volume: 298000 },
+        { rank: 7, handle: 'cryptopunk', avatar: '👾', rains: 54, volume: 234000 },
+        { rank: 8, handle: 'web3wizard', avatar: '🧙', rains: 43, volume: 187000 },
+        { rank: 9, handle: 'tokenmaster', avatar: '🎮', rains: 38, volume: 156000 },
+        { rank: 10, handle: 'satoshison', avatar: '₿', rains: 32, volume: 123000 },
+      ],
+      volume: [
+        { rank: 1, handle: 'cryptowhale', avatar: '🐋', rains: 156, volume: 1250000 },
+        { rank: 2, handle: 'solanamax', avatar: '☀️', rains: 134, volume: 890000 },
+        { rank: 3, handle: 'degentrader', avatar: '📈', rains: 98, volume: 654000 },
+        { rank: 4, handle: 'nftcollector', avatar: '🎨', rains: 87, volume: 432000 },
+        { rank: 5, handle: 'memelord', avatar: '🐸', rains: 76, volume: 321000 },
+        { rank: 6, handle: 'whalealert', avatar: '🚨', rains: 12, volume: 2500000 },
+        { rank: 7, handle: 'blockchainbarbie', avatar: '💅', rains: 65, volume: 298000 },
+        { rank: 8, handle: 'cryptopunk', avatar: '👾', rains: 54, volume: 234000 },
+        { rank: 9, handle: 'web3wizard', avatar: '🧙', rains: 43, volume: 187000 },
+        { rank: 10, handle: 'tokenmaster', avatar: '🎮', rains: 38, volume: 156000 },
+      ]
+    };
+    
+    function renderLeaderboard(data) {
+      const tbody = document.getElementById('leaderboard-body');
+      
+      tbody.innerHTML = data.map(user => {
+        let rankClass = 'rank';
+        if (user.rank === 1) rankClass += ' gold';
+        else if (user.rank === 2) rankClass += ' silver';
+        else if (user.rank === 3) rankClass += ' bronze';
+        
+        return `
+          <tr>
+            <td><span class="${rankClass}">#${user.rank}</span></td>
+            <td>
+              <div class="user-cell">
+                <div class="avatar">${user.avatar}</div>
+                <span>@${user.handle}</span>
+              </div>
+            </td>
+            <td>${user.rains}</td>
+            <td class="amount-cell">$${(user.volume / 1000).toFixed(1)}K</td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    function switchTab(type) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if (type === 'rains') {
+        renderLeaderboard(leaderboardData.rains);
+      } else if (type === 'volume') {
+        renderLeaderboard(leaderboardData.volume);
+      }
+    }
+    
+    // Initial render
+    renderLeaderboard(leaderboardData.rains);
+  </script>
+</body>
+</html>
