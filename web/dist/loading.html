@@ -612,6 +612,18 @@
     
     <div class="subtitle" id="subtitle">INITIALIZING PROTOCOL...</div>
 
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-secondary); margin-bottom: 20px; text-align: center;">
+      <span style="color: var(--terminal-green);">CA:</span> 6XXmwiZVJDZcMg6yPhbq4haGopdwxYSMHSV6ndespump
+      <button onclick="copyCA()" style="background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 2px 8px; margin-left: 10px; cursor: pointer; font-size: 10px;">[COPY]</button>
+    </div>
+
+    <script>
+      function copyCA() {
+        navigator.clipboard.writeText('6XXmwiZVJDZcMg6yPhbq4haGopdwxYSMHSV6ndespump');
+        alert('Contract Address copied!');
+      }
+    </script>
+
     <div class="terminal">
       <div class="terminal-header">
         <span class="terminal-dot dot-red"></span>
