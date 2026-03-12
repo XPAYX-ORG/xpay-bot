@@ -263,18 +263,28 @@
   <main class="container">
     <h1>LEADERBOARD :: TOP_PERFORMERS</h1>
 
+    <!-- Mainnet Notice -->
+    <div style="background: rgba(0, 255, 65, 0.05); border: 1px solid var(--terminal-green); padding: 30px; margin-bottom: 40px; text-align: center;">
+      <div style="font-size: 32px; margin-bottom: 15px;">⏳</div>
+      <h2 style="color: var(--terminal-green); font-size: 18px; margin-bottom: 10px;">MAINNET LAUNCH PENDING</h2>
+      <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">
+        Leaderboard rankings will be activated once mainnet goes live.<br>
+        Current mode: <span style="color: var(--terminal-cyan);">DEVNET_ONLY</span>
+      </p>
+    </div>
+
     <!-- Global Stats -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-value" id="total-rains">1,337</div>
+        <div class="stat-value" id="total-rains">--</div>
         <div class="stat-label">TOTAL_RAINS</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="total-volume">6.9M</div>
+        <div class="stat-value" id="total-volume">--</div>
         <div class="stat-label">TOTAL_VOLUME_USD</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="total-users">420</div>
+        <div class="stat-value" id="total-users">--</div>
         <div class="stat-label">ACTIVE_USERS</div>
       </div>
     </div>
@@ -293,19 +303,14 @@
         <div class="tab" onclick="switchTab('claims')">BY_CLAIMS</div>
       </div>
       <div class="terminal-body">
-        <table class="leaderboard-table" id="leaderboard">
-          <thead>
-            <tr>
-              <th>RANK</th>
-              <th>USER</th>
-              <th>RAINS_SENT</th>
-              <th>TOTAL_VOLUME</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboard-body">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
+        <div style="text-align: center; padding: 60px 20px;">
+          <div style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;">📊</div>
+          <h3 style="color: var(--terminal-cyan); font-size: 16px; margin-bottom: 10px;">NO ACTIVE DATA</h3>
+          <p style="color: var(--text-secondary); font-size: 13px; max-width: 400px; margin: 0 auto; line-height: 1.6;">
+            Leaderboard will display live rankings once the protocol launches on mainnet.<br><br>
+            <span style="color: var(--terminal-yellow);">Stay tuned for the rain.</span>
+          </p>
+        </div>
       </div>
     </div>
   </main>
