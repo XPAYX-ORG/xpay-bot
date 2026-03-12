@@ -480,6 +480,121 @@
     .hidden {
       display: none !important;
     }
+
+    /* Tweet Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      max-width: 500px;
+      width: 90%;
+      padding: 40px;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0, 255, 65, 0.3);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+      color: var(--primary);
+    }
+
+    .modal-title {
+      font-size: 24px;
+      color: var(--primary);
+      margin-bottom: 20px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .tweet-box {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 20px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    .tweet-preview {
+      background: rgba(0, 255, 65, 0.05);
+      border-left: 3px solid var(--primary);
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .tweet-hashtag {
+      color: var(--secondary);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .modal-btn {
+      padding: 12px 30px;
+      border: 1px solid var(--primary);
+      background: transparent;
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-btn:hover {
+      background: var(--primary);
+      color: var(--bg);
+    }
+
+    .modal-btn.primary {
+      background: var(--primary);
+      color: var(--bg);
+    }
+
+    .modal-btn.primary:hover {
+      box-shadow: 0 0 20px var(--primary);
+    }
   </style>
 </head>
 <body class="crt">
@@ -544,7 +659,36 @@
       <a href="https://discord.gg/xpay" target="_blank" class="social-link">Discord</a>
     </div>
 
-    <a href="/dashboard" class="enter-btn hidden" id="enterBtn">[ ENTER_SYSTEM ]</a>
+    <button class="enter-btn hidden" id="enterBtn" onclick="openTweetModal()">[ ENTER_SYSTEM ]</button>
+  </div>
+
+  <!-- Tweet Modal -->
+  <div class="modal-overlay" id="tweetModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeTweetModal()">&times;</button>
+      <div class="modal-title">SPREAD THE WORD</div>
+      
+      <div class="tweet-preview">
+        <strong>Preview:</strong><br>
+        🌧 <span class="tweet-hashtag">$XPAY</span> Raining soon! <br><br>
+        The first Twitter-integrated rain bot for <span class="tweet-hashtag">@Solana</span>. <br>
+        Reward communities directly through tweets. <br><br>
+        <span class="tweet-hashtag">#XPAY</span> <span class="tweet-hashtag">#Solana</span> <span class="tweet-hashtag">#RainBot</span><br><br>
+        👉 https://xpayx.vercel.app
+      </div>
+      
+      <div class="modal-buttons">
+        <a href="https://twitter.com/intent/tweet?text=%F0%9F%8CA7%20%24XPAY%20Raining%20soon!%0A%0AThe%20first%20Twitter-integrated%20rain%20bot%20for%20%40Solana.%20Reward%20communities%20directly%20through%20tweets.%0A%0A%23XPAY%20%23Solana%20%23RainBot%0A%0A%F0%9F%91%89%20https%3A%2F%2Fxpayx.vercel.app" 
+           target="_blank" 
+           class="modal-btn primary"
+           onclick="tweetAndEnter()">
+          🐦 TWEET & CONTINUE
+        </a>
+        <button class="modal-btn" onclick="skipTweet()">
+          SKIP →
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -755,6 +899,36 @@
       }
     `;
     document.head.appendChild(style);
+
+    // Tweet Modal Functions
+    function openTweetModal() {
+      document.getElementById('tweetModal').classList.add('active');
+    }
+
+    function closeTweetModal() {
+      document.getElementById('tweetModal').classList.remove('active');
+    }
+
+    function tweetAndEnter() {
+      // Track that user tweeted
+      localStorage.setItem('xpay_tweeted', 'true');
+      // Redirect after a short delay
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 500);
+    }
+
+    function skipTweet() {
+      closeTweetModal();
+      window.location.href = '/dashboard';
+    }
+
+    // Close modal on overlay click
+    document.getElementById('tweetModal').addEventListener('click', (e) => {
+      if (e.target.id === 'tweetModal') {
+        closeTweetModal();
+      }
+    });
   </script>
 </body>
 </html>
