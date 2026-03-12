@@ -1,6 +1,10 @@
 # 🌧 $XPAY - Solana Rain Bot for X (Twitter)
 
+[![Twitter](https://img.shields.io/badge/X-@Xpay__rain-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/Xpay_rain)
+
 The first Twitter-integrated rain bot for Solana. Reward your community with $SOL, $USDC, or any SPL token directly through Twitter.
+
+**Official X/Twitter:** https://x.com/Xpay_rain
 
 ## Features
 
