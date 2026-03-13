@@ -27,14 +27,16 @@ export default function Home() {
     // Subscribe to realtime rains
     const subscription = supabase
       .channel('rain_events')
-      .on('INSERT', { event: '*', schema: 'public', table: 'rain_events' }, 
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'rain_events' },
         (payload) => {
           setLiveRains(prev => [payload.new as RainEvent, ...prev].slice(0, 10))
         }
       )
       .subscribe()
     
-    return () => { subscription.unsubscribe() }
+    return () => { supabase.removeChannel(subscription) }
   }, [])
 
   async function fetchStats() {

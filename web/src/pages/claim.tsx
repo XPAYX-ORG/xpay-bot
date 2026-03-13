@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useWallet, useConnection } from '@solana/wallet-adapter-react'
+import { useParams, Link } from 'react-router-dom'
+import { useWallet } from '@solana/wallet-adapter-react'
 import { Clock, CheckCircle, XCircle, Twitter } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 export default function Claim() {
   const { rainId } = useParams()
-  const navigate = useNavigate()
   const { publicKey, connected, connect } = useWallet()
-  const { connection } = useConnection()
   
   const [claim, setClaim] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -59,7 +57,8 @@ export default function Claim() {
 
     try {
       // Call API to execute claim
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/claim`, {
+      const apiUrl = import.meta.env.VITE_API_URL || ''
+      const response = await fetch(`${apiUrl}/claim`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -207,6 +206,3 @@ export default function Claim() {
     </div>
   )
 }
-
-// Missing import fix
-import { Link } from 'react-router-dom'

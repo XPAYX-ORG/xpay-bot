@@ -118,4 +118,14 @@ export class SolanaService {
   getEscrowAddress(): string {
     return this.escrowWallet.publicKey.toString();
   }
+
+  async distributeSOLFromEscrow(toAddress: string, amount: number): Promise<string> {
+    return this.transferSOL(this.escrowWallet, toAddress, amount);
+  }
+
+  async distributeSPLFromEscrow(toAddress: string, token: string, amount: number): Promise<string> {
+    const mint = TOKENS[token as keyof typeof TOKENS];
+    if (!mint) throw new Error(`Unknown token: ${token}`);
+    return this.transferSPL(this.escrowWallet, toAddress, mint, amount);
+  }
 }

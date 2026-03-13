@@ -122,7 +122,7 @@ export class RainDistributor {
           'user.fields': ['created_at', 'public_metrics'],
         });
 
-        const createdAt = new Date(userDetails.data.created_at);
+        const createdAt = new Date(userDetails.data.created_at ?? Date.now());
         const followers = userDetails.data.public_metrics?.followers_count || 0;
         const accountAgeDays = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
 

@@ -7,8 +7,10 @@ import { supabase } from '../lib/supabase'
 interface RainEvent {
   id: string
   token: string
+  total_amount: number
   amount: number
   status: string
+  recipient_count: number
   created_at: string
 }
 
